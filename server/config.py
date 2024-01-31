@@ -10,20 +10,9 @@ CONFIG = {
     # This configures how and where to submit flags.
     # The protocol must be a module in protocols/ directory.
 
-    'SYSTEM_PROTOCOL': 'ructf_tcp',
+    'SYSTEM_PROTOCOL': 'eof',
     'SYSTEM_HOST': '127.0.0.1',
     'SYSTEM_PORT': 31337,
-
-    # 'SYSTEM_PROTOCOL': 'ructf_http',
-    # 'SYSTEM_URL': 'http://monitor.ructfe.org/flags',
-    # 'SYSTEM_TOKEN': 'your_secret_token',
-
-    # 'SYSTEM_PROTOCOL': 'volgactf',
-    # 'SYSTEM_HOST': '127.0.0.1',
-
-    # 'SYSTEM_PROTOCOL': 'forcad_tcp',
-    # 'SYSTEM_HOST': '127.0.0.1',
-    # 'SYSTEM_PORT': 31337,
     # 'TEAM_TOKEN': 'your_secret_token',
 
     # The server will submit not more than SUBMIT_FLAG_LIMIT flags

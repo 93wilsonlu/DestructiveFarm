@@ -40,18 +40,22 @@ def recvall(sock):
 
 
 def submit_flags(flags, config):
+    print(config['SYSTEM_HOST'], config['SYSTEM_PORT'])
     sock = socket.create_connection((config['SYSTEM_HOST'], config['SYSTEM_PORT']),
                                     READ_TIMEOUT)
 
+    # Greet
     greeting = recvall(sock)
-    if b'Welcome' not in greeting:
+    if b'Hello' not in greeting:
         raise Exception('Checksystem does not greet us: {}'.format(greeting))
+    
+    # # Send token
+    # sock.sendall(config['TEAM_TOKEN'].encode() + b'\n')
+    # invite = recvall(sock)
+    # if b'enter your flags' not in invite:
+    #     raise Exception('Team token seems to be invalid: {}'.format(invite))
 
-    sock.sendall(config['TEAM_TOKEN'].encode() + b'\n')
-    invite = recvall(sock)
-    if b'enter your flags' not in invite:
-        raise Exception('Team token seems to be invalid: {}'.format(invite))
-
+    # Send flags
     unknown_responses = set()
     for item in flags:
         sock.sendall(item.flag.encode() + b'\n')

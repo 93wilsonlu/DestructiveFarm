@@ -1,0 +1,20 @@
+version: "0.1"
+
+volumes:
+    flags:
+
+services:
+    server:
+        build: server
+        networks:
+            - external
+            - internal
+        ports:
+            - 8080:8080
+        volumes:
+            - flags:/server/data
+
+networks:
+    internal:
+        internal: true
+    external:
