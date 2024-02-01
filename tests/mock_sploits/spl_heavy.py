@@ -23,7 +23,7 @@ def main():
 
     print('Text length:', len(text))
 
-    for _ in range(10):
+    for _ in range(3):
         text = hashlib.sha256(text.encode()).hexdigest()[:31].upper() + '='
         print(text, flush=True)
         time.sleep(0.1)

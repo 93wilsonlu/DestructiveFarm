@@ -98,6 +98,8 @@ def parse_args():
                         help='Rerun the sploit on all teams each N seconds '
                              'Too little value will make time limits for sploits smaller, '
                              'too big will miss flags from some rounds')
+    parser.add_argument('-t', '--targets', metavar='TARGETS', default=None,
+                        help='Specify victims')
 
     parser.add_argument('-v', '--verbose-attacks', metavar='N', type=int, default=1,
                         help="Sploits' outputs and found flags will be shown for the N first attacks")
@@ -505,9 +507,14 @@ PRINTED_TEAM_NAMES = 5
 
 def get_target_teams(args, teams, attack_no):
     if args.not_per_team:
-        return {'*': None}
+        target = list(teams.keys())[0]
+        return {target: teams[target]}
+    
+    if args.targets:
+        targets = args.targets.split(',')
+        teams = {name: addr for name, addr in teams.items() if name in targets}
 
-    if args.distribute is not None:
+    elif args.distribute is not None:
         k, n = args.distribute
         teams = {name: addr for name, addr in teams.items()
                  if binascii.crc32(addr.encode()) % n == k - 1}

@@ -14,7 +14,11 @@ def handle_client(sock):
     sock.sendall(b'Hello\nEnter your flags\n')
 
     while True:
-        flag = sock.recv(4096).strip().decode()
+        try:
+            flag = sock.recv(4096).strip().decode()
+        except:
+            continue
+
         if not flag:
             break
 
