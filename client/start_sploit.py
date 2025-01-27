@@ -79,7 +79,7 @@ def parse_args():
     parser.add_argument('sploit',
                         help="Sploit executable (should take a victim's host as the first argument)")
     parser.add_argument('-u', '--server-url', metavar='URL',
-                        default='http://farm.93wilsonlu.com',
+                        default='http://farm.goat0f05.cc',
                         help='Server URL')
     parser.add_argument('-a', '--alias', metavar='ALIAS',
                         default=None,
