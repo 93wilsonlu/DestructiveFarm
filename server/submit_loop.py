@@ -80,6 +80,7 @@ def run_loop():
             results = submit_flags(flags, config)
 
             rows = [(item.status.name, item.checksystem_response, item.flag) for item in results]
+            print(rows)
             db.executemany("UPDATE flags SET status = ?, checksystem_response = ? "
                            "WHERE flag = ?", rows)
             db.commit()

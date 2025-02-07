@@ -4,15 +4,13 @@ import socket
 
 from server import app
 from server.models import FlagStatus, SubmitResult
+import requests
 
 
 RESPONSES = {
-    FlagStatus.QUEUED: ['timeout', 'game not started', 'try again later', 'game over', 'is not up',
-                        'no such flag'],
-    FlagStatus.ACCEPTED: ['accepted', 'congrat'],
-    FlagStatus.REJECTED: ['bad', 'wrong', 'expired', 'unknown', 'your own',
-                          'too old', 'not in database', 'already submitted', 'invalid flag',
-                          'self', 'invalid', 'already_submitted', 'team_not_found', 'too_old', 'stolen'],
+    FlagStatus.QUEUED: ['Please submit the flag when round is running.', 'submit too frequently.'],
+    FlagStatus.ACCEPTED: ['correct'],
+    FlagStatus.REJECTED: ['incorrect'],
 }
 
 READ_TIMEOUT = 5
@@ -40,31 +38,19 @@ def recvall(sock):
 
 
 def submit_flags(flags, config):
-    print(config['SYSTEM_HOST'], config['SYSTEM_PORT'])
-    sock = socket.create_connection((config['SYSTEM_HOST'], config['SYSTEM_PORT']),
-                                    READ_TIMEOUT)
-
-    # Greet
-    greeting = recvall(sock)
-    if b'Hello' not in greeting:
-        raise Exception('Checksystem does not greet us: {}'.format(greeting))
-    
-    # # Send token
-    # sock.sendall(config['TEAM_TOKEN'].encode() + b'\n')
-    # invite = recvall(sock)
-    # if b'enter your flags' not in invite:
-    #     raise Exception('Team token seems to be invalid: {}'.format(invite))
-
-    # Send flags
     unknown_responses = set()
+    session = requests.Session()
     for item in flags:
-        sock.sendall(item.flag.encode() + b'\n')
-        response = recvall(sock).decode().strip()
-        if response:
-            response = response.splitlines()[0]
-        response = response.replace('[{}] '.format(item.flag), '')
+        response = session.post(config['SYSTEM_HOST'], json={'flag': item}, headers={
+                                'Authorization': config['TEAM_TOKEN']})
 
-        response_lower = response.lower()
+        try:
+            response_lower = response.json()['res'].lower()
+            if response_lower == '':
+                response_lower = response.json()['message'].lower()
+        except:
+            response_lower = response.text.lower()
+        print('Flag: ',response_lower)
         for status, substrings in RESPONSES.items():
             if any(s in response_lower for s in substrings):
                 found_status = status
@@ -73,8 +59,13 @@ def submit_flags(flags, config):
             found_status = FlagStatus.QUEUED
             if response not in unknown_responses:
                 unknown_responses.add(response)
-                app.logger.warning('Unknown checksystem response (flag will be resent): %s', response)
+                app.logger.warning(
+                    'Unknown checksystem response (flag will be resent): %s', response)
+        
+        print(found_status)
+        print(SubmitResult(item.flag, found_status, response.status_code))
 
-        yield SubmitResult(item.flag, found_status, response)
 
-    sock.close()
+        yield SubmitResult(item.flag, found_status, response.status_code)
+
+    session.close()
